@@ -6,10 +6,13 @@ import { NavLink } from "react-router-dom";
 import { useCurrentUser, useSetCurrentUser } from "../contexts/CurrentUserContext";
 import Avatar from "./Avatar";
 import axios from "axios";
+import UseClickOutsideToggle from "../hooks/UseClickOutsideToggle";
 
 const NavBar = () => {
   const currentUser = useCurrentUser();
   const setCurrentUser = useSetCurrentUser()
+
+  const {expanded, setExpanded, ref} = UseClickOutsideToggle()
 
   const handleSignOut = async () => {
     try {
@@ -80,7 +83,7 @@ const NavBar = () => {
   );
 
   return (
-    <Navbar className={styles.NavBar} expand="md" fixed="top">
+    <Navbar className={styles.NavBar} expand="md" fixed="top" expanded={expanded}>
       <Container>
         <NavLink to="/">
           <Navbar.Brand>
@@ -88,7 +91,7 @@ const NavBar = () => {
           </Navbar.Brand>
         </NavLink>
         {currentUser && addPostIcon}
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Toggle aria-controls="basic-navbar-nav" onClick={() => {setExpanded(!expanded)}} ref={ref} />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ml-auto text-left">
             <NavLink
