@@ -69,7 +69,7 @@ function PostsPage({ message, filter = "" }) {
                     <Post key={post.id} {...post} setPosts={setPosts} />
                   ))
                 }
-                dataLength={post.results.length}
+                dataLength={posts.results.length}
                 Loader={<Asset spinner />}
                 hasMore={!!posts.next}
                 next={() => fetchMoreData(posts, setPosts)}
