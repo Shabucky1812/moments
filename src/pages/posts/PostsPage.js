@@ -5,16 +5,19 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Container from "react-bootstrap/Container";
 
+import Post from "./Post";
+import Asset from "../../components/Asset";
+
 import appStyles from "../../App.module.css";
 import styles from "../../styles/PostsPage.module.css";
-import { useLocation } from "react-router-dom/cjs/react-router-dom.min";
+import { useLocation } from "react-router";
 import { axiosReq } from "../../api/axiosDefaults";
-import Post from "./Post";
+
 import NoResults from "../../assets/no-results.png";
-import Asset from "../../components/Asset";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { fetchMoreData } from "../../utils/utils";
 import PopularProfiles from "../profiles/PopularProfiles";
+import { useCurrentUser } from "../../contexts/CurrentUserContext";
 
 function PostsPage({ message, filter = "" }) {
   const [posts, setPosts] = useState({ results: [] });
@@ -23,6 +26,8 @@ function PostsPage({ message, filter = "" }) {
 
   const [query, setQuery] = useState("");
 
+  const currentUser = useCurrentUser();
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -30,7 +35,7 @@ function PostsPage({ message, filter = "" }) {
         setPosts(data);
         setHasLoaded(true);
       } catch (err) {
-        console.log(err);
+        // console.log(err);
       }
     };
 
@@ -38,10 +43,11 @@ function PostsPage({ message, filter = "" }) {
     const timer = setTimeout(() => {
       fetchPosts();
     }, 1000);
+
     return () => {
       clearTimeout(timer);
     };
-  }, [filter, query, pathname]);
+  }, [filter, query, pathname, currentUser]);
 
   return (
     <Row className="h-100">
@@ -53,25 +59,23 @@ function PostsPage({ message, filter = "" }) {
           onSubmit={(event) => event.preventDefault()}
         >
           <Form.Control
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
             type="text"
             className="mr-sm-2"
             placeholder="Search posts"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
           />
         </Form>
 
         {hasLoaded ? (
           <>
             {posts.results.length ? (
-              <InfiniteScroll 
-                children={
-                  posts.results.map((post) => (
-                    <Post key={post.id} {...post} setPosts={setPosts} />
-                  ))
-                }
+              <InfiniteScroll
+                children={posts.results.map((post) => (
+                  <Post key={post.id} {...post} setPosts={setPosts} />
+                ))}
                 dataLength={posts.results.length}
-                Loader={<Asset spinner />}
+                loader={<Asset spinner />}
                 hasMore={!!posts.next}
                 next={() => fetchMoreData(posts, setPosts)}
               />
